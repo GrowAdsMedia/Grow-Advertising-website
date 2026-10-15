@@ -317,3 +317,268 @@ if (year) year.textContent = new Date().getFullYear();
   buildPortfolioLightbox();
   prefillContact();
 })();
+
+// Grow Buddy: playful on-site assistant for Grow Advertising
+(function () {
+  if (document.querySelector('.grow-chat-launcher')) return;
+
+  const whatsappNumber = '919921107234';
+  const state = {
+    service: '',
+    business: '',
+    lastIntent: ''
+  };
+
+  const services = [
+    'Meta Ads & Lead Generation',
+    'Social Media Management',
+    'Graphic Designing',
+    'Video / Reels & Shoot',
+    'Branding & Packaging',
+    'Website Development',
+    'Google Business & SEO'
+  ];
+
+  function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (typeof text === 'string') node.textContent = text;
+    return node;
+  }
+
+  function normalize(text) {
+    return (text || '').toLowerCase().trim();
+  }
+
+  function hasAny(text, words) {
+    return words.some(function (word) { return text.indexOf(word) !== -1; });
+  }
+
+  function serviceFromText(text) {
+    const t = normalize(text);
+    if (hasAny(t, ['meta', 'facebook ad', 'instagram ad', 'lead', 'ads', 'campaign'])) return 'Meta Ads & Lead Generation';
+    if (hasAny(t, ['social media', 'instagram management', 'posting', 'content management'])) return 'Social Media Management';
+    if (hasAny(t, ['graphic', 'post design', 'creative', 'poster'])) return 'Graphic Designing';
+    if (hasAny(t, ['video', 'reel', 'shoot', 'motion', 'ai video'])) return 'Video / Reels & Shoot';
+    if (hasAny(t, ['branding', 'logo', 'identity', 'packaging', 'package design'])) return 'Branding & Packaging';
+    if (hasAny(t, ['website', 'web development', 'landing page', 'site'])) return 'Website Development';
+    if (hasAny(t, ['seo', 'google business', 'gmb', 'search ranking'])) return 'Google Business & SEO';
+    return '';
+  }
+
+  const launcher = el('button', 'grow-chat-launcher');
+  launcher.type = 'button';
+  launcher.setAttribute('aria-label', 'Open Grow Buddy assistant');
+  launcher.innerHTML = '<span class="grow-chat-spark">✦</span><span class="grow-chat-launch-copy"><strong>Grow Buddy</strong><small>Ask me anything</small></span>';
+
+  const panel = el('section', 'grow-chat-panel');
+  panel.setAttribute('role', 'dialog');
+  panel.setAttribute('aria-label', 'Grow Advertising assistant');
+  panel.setAttribute('aria-hidden', 'true');
+
+  const head = el('div', 'grow-chat-head');
+  head.innerHTML = '<div class="grow-chat-avatar">G</div><div><strong>Grow Buddy <span>AI Assistant</span></strong><small><i></i> Online • usually replies instantly</small></div>';
+  const close = el('button', 'grow-chat-close', '×');
+  close.type = 'button';
+  close.setAttribute('aria-label', 'Close assistant');
+  head.appendChild(close);
+
+  const messages = el('div', 'grow-chat-messages');
+  const quick = el('div', 'grow-chat-quick');
+  const form = el('form', 'grow-chat-form');
+  const input = el('input', 'grow-chat-input');
+  input.type = 'text';
+  input.placeholder = 'Type your question…';
+  input.autocomplete = 'off';
+  input.setAttribute('aria-label', 'Message Grow Buddy');
+  const send = el('button', 'grow-chat-send', '➜');
+  send.type = 'submit';
+  send.setAttribute('aria-label', 'Send message');
+  form.appendChild(input);
+  form.appendChild(send);
+
+  const footer = el('div', 'grow-chat-foot');
+  footer.innerHTML = '<span>Powered by Grow Advertising</span><a href="https://wa.me/' + whatsappNumber + '" target="_blank" rel="noopener">WhatsApp human ↗</a>';
+
+  panel.appendChild(head);
+  panel.appendChild(messages);
+  panel.appendChild(quick);
+  panel.appendChild(form);
+  panel.appendChild(footer);
+  document.body.appendChild(launcher);
+  document.body.appendChild(panel);
+
+  function openChat() {
+    panel.classList.add('open');
+    launcher.classList.add('hidden');
+    panel.setAttribute('aria-hidden', 'false');
+    window.setTimeout(function () { input.focus(); }, 180);
+  }
+
+  function closeChat() {
+    panel.classList.remove('open');
+    launcher.classList.remove('hidden');
+    panel.setAttribute('aria-hidden', 'true');
+  }
+
+  function addMessage(text, who, html) {
+    const row = el('div', 'grow-chat-row ' + who);
+    const bubble = el('div', 'grow-chat-bubble');
+    if (html) bubble.innerHTML = text;
+    else bubble.textContent = text;
+    row.appendChild(bubble);
+    messages.appendChild(row);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function setQuickReplies(items) {
+    quick.innerHTML = '';
+    (items || []).forEach(function (item) {
+      const btn = el('button', 'grow-chat-chip', item.label || item);
+      btn.type = 'button';
+      btn.dataset.message = item.message || item.label || item;
+      quick.appendChild(btn);
+    });
+  }
+
+  function whatsappLink(message) {
+    return 'https://wa.me/' + whatsappNumber + '?text=' + encodeURIComponent(message);
+  }
+
+  function handoffMessage() {
+    const parts = ['Hello Grow Advertising, I came from the website assistant.'];
+    if (state.business) parts.push('Business: ' + state.business + '.');
+    if (state.service) parts.push('Interested in: ' + state.service + '.');
+    parts.push('Please guide me with the next step.');
+    return parts.join(' ');
+  }
+
+  function answer(raw) {
+    const text = normalize(raw);
+    const detected = serviceFromText(text);
+    if (detected) state.service = detected;
+
+    if (hasAny(text, ['hi', 'hello', 'hey', 'hii', 'namaste'])) {
+      state.lastIntent = 'greeting';
+      return {
+        text: 'Hey! 👋 I’m Grow Buddy. Tell me what you want to grow — leads, branding, social media, videos, website or visibility?',
+        quick: ['Get more leads', 'Social media', 'Branding', 'Website']
+      };
+    }
+
+    if (hasAny(text, ['price', 'pricing', 'cost', 'charges', 'package', 'packages', 'budget'])) {
+      state.lastIntent = 'pricing';
+      return {
+        html: true,
+        text: 'We have ready-made monthly packages plus custom plans based on your goals. <a href="services.html#packages">View packages →</a><br><br>If you tell me the service you need, I can point you to the right option.',
+        quick: ['Meta Ads', 'Social Media', 'Branding', 'Talk on WhatsApp']
+      };
+    }
+
+    if (hasAny(text, ['portfolio', 'work', 'projects', 'samples', 'designs', 'show me'])) {
+      state.lastIntent = 'portfolio';
+      return {
+        html: true,
+        text: 'Absolutely 😎 You can explore our logo, social media, packaging, reels, video and ads work here: <a href="portfolio.html">View Portfolio →</a>',
+        quick: ['Logo work', 'Social posts', 'Packaging', 'Reels']
+      };
+    }
+
+    if (hasAny(text, ['contact', 'call', 'phone', 'whatsapp', 'talk', 'human', 'team'])) {
+      state.lastIntent = 'contact';
+      return {
+        html: true,
+        text: 'Want a human? Easy. <a href="' + whatsappLink(handoffMessage()) + '" target="_blank" rel="noopener">Chat with our team on WhatsApp →</a><br><br>You can also call us at <a href="tel:+919921107234">+91 9921107234</a>.',
+        quick: ['Book consultation', 'View services']
+      };
+    }
+
+    if (hasAny(text, ['what do you do', 'services', 'service', 'help me', 'help'])) {
+      state.lastIntent = 'services';
+      return {
+        text: 'We help with Meta Ads & lead generation, social media management, graphic design, reels/video shoots, branding & packaging, websites, Google Business and SEO. Pick one and I’ll guide you.',
+        quick: ['Meta Ads', 'Social Media', 'Video / Reels', 'Website']
+      };
+    }
+
+    if (state.service || detected) {
+      state.lastIntent = 'service';
+      const current = state.service || detected;
+      let detail = '';
+      if (current === 'Meta Ads & Lead Generation') detail = 'We plan targeting, creatives, campaign setup, testing and optimization to generate better enquiries and leads.';
+      if (current === 'Social Media Management') detail = 'We can handle content planning, creatives, posting support and account consistency for your brand.';
+      if (current === 'Graphic Designing') detail = 'We create social posts, ad creatives, promotional designs and marketing visuals aligned with your brand.';
+      if (current === 'Video / Reels & Shoot') detail = 'We work on reels, product/showroom shoots, edits, motion graphics, typography and AI-led video formats.';
+      if (current === 'Branding & Packaging') detail = 'We work on logos, brand identity systems and packaging that look distinctive and market-ready.';
+      if (current === 'Website Development') detail = 'We build responsive business websites and landing pages designed to explain your offer clearly and drive enquiries.';
+      if (current === 'Google Business & SEO') detail = 'We help improve local visibility through Google Business Profile support and search-focused website improvements.';
+      return {
+        text: detail + ' Want pricing, examples, or a quick WhatsApp consultation?',
+        quick: ['Show pricing', 'Show portfolio', 'WhatsApp consultation']
+      };
+    }
+
+    if (hasAny(text, ['restaurant', 'shop', 'store', 'clinic', 'salon', 'real estate', 'school', 'business', 'company', 'brand'])) {
+      state.business = raw.trim().slice(0, 80);
+      return {
+        text: 'Nice — that gives me context. What result matters most right now: more leads, stronger branding, better social media, or a new website?',
+        quick: ['More leads', 'Better social media', 'Branding', 'Website']
+      };
+    }
+
+    return {
+      text: 'I can help with services, packages, portfolio, leads, branding, social media, videos, websites and contact details. Try asking something like “I need more leads” or “show pricing”.',
+      quick: ['I need more leads', 'Show pricing', 'View portfolio', 'Talk to team']
+    };
+  }
+
+  function handleMessage(message) {
+    if (!message || !message.trim()) return;
+    addMessage(message.trim(), 'user');
+    input.value = '';
+    setQuickReplies([]);
+
+    const typing = el('div', 'grow-chat-row bot');
+    typing.innerHTML = '<div class="grow-chat-bubble grow-chat-typing"><span></span><span></span><span></span></div>';
+    messages.appendChild(typing);
+    messages.scrollTop = messages.scrollHeight;
+
+    window.setTimeout(function () {
+      typing.remove();
+      const response = answer(message);
+      addMessage(response.text, 'bot', response.html);
+      setQuickReplies((response.quick || []).map(function (label) {
+        if (label === 'Talk on WhatsApp' || label === 'WhatsApp consultation' || label === 'Talk to team' || label === 'Book consultation') {
+          return {label: label, message: label};
+        }
+        return label;
+      }));
+    }, 420);
+  }
+
+  launcher.addEventListener('click', openChat);
+  close.addEventListener('click', closeChat);
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    handleMessage(input.value);
+  });
+
+  quick.addEventListener('click', function (e) {
+    const btn = e.target.closest('.grow-chat-chip');
+    if (!btn) return;
+    const message = btn.dataset.message || btn.textContent;
+    if (/whatsapp|talk to team|book consultation/i.test(message)) {
+      window.open(whatsappLink(handoffMessage()), '_blank', 'noopener');
+      return;
+    }
+    handleMessage(message);
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && panel.classList.contains('open')) closeChat();
+  });
+
+  addMessage('Hey! 👋 I’m Grow Buddy — your quick guide to Grow Advertising. What are you looking for today?', 'bot');
+  setQuickReplies(['Get more leads', 'View services', 'Show pricing', 'See portfolio']);
+})();
