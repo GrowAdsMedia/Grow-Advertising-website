@@ -326,7 +326,8 @@ if (year) year.textContent = new Date().getFullYear();
   const state = {
     service: '',
     business: '',
-    lastIntent: ''
+    lastIntent: '',
+    lastUserMessage: ''
   };
 
   const services = [
@@ -356,20 +357,20 @@ if (year) year.textContent = new Date().getFullYear();
 
   function serviceFromText(text) {
     const t = normalize(text);
-    if (hasAny(t, ['meta', 'facebook ad', 'instagram ad', 'lead', 'ads', 'campaign'])) return 'Meta Ads & Lead Generation';
-    if (hasAny(t, ['social media', 'instagram management', 'posting', 'content management'])) return 'Social Media Management';
-    if (hasAny(t, ['graphic', 'post design', 'creative', 'poster'])) return 'Graphic Designing';
-    if (hasAny(t, ['video', 'reel', 'shoot', 'motion', 'ai video'])) return 'Video / Reels & Shoot';
-    if (hasAny(t, ['branding', 'logo', 'identity', 'packaging', 'package design'])) return 'Branding & Packaging';
-    if (hasAny(t, ['website', 'web development', 'landing page', 'site'])) return 'Website Development';
-    if (hasAny(t, ['seo', 'google business', 'gmb', 'search ranking'])) return 'Google Business & SEO';
+    if (hasAny(t, ['meta', 'facebook ad', 'instagram ad', 'lead', 'leads', 'ads', 'campaign', 'customer chahiye', 'enquiry', 'inquiry'])) return 'Meta Ads & Lead Generation';
+    if (hasAny(t, ['social media', 'instagram management', 'posting', 'content management', 'page manage', 'instagram handle'])) return 'Social Media Management';
+    if (hasAny(t, ['graphic', 'post design', 'creative', 'poster', 'banner', 'social post'])) return 'Graphic Designing';
+    if (hasAny(t, ['video', 'reel', 'reels', 'shoot', 'motion', 'ai video', 'editing', 'video edit'])) return 'Video / Reels & Shoot';
+    if (hasAny(t, ['branding', 'logo', 'identity', 'packaging', 'package design', 'brand design'])) return 'Branding & Packaging';
+    if (hasAny(t, ['website', 'web development', 'landing page', 'site', 'web banani', 'website banana'])) return 'Website Development';
+    if (hasAny(t, ['seo', 'google business', 'gmb', 'search ranking', 'google map', 'google maps'])) return 'Google Business & SEO';
     return '';
   }
 
   const launcher = el('button', 'grow-chat-launcher');
   launcher.type = 'button';
   launcher.setAttribute('aria-label', 'Open Grow Buddy assistant');
-  launcher.innerHTML = '<span class="grow-chat-spark">✦</span><span class="grow-chat-launch-copy"><strong>Grow Buddy</strong><small>Ask me anything</small></span>';
+  launcher.innerHTML = '<span class="grow-chat-spark">✦</span><span class="grow-chat-launch-copy"><strong>Grow Assistant</strong><small>Services • Pricing • Support</small></span>';
 
   const panel = el('section', 'grow-chat-panel');
   panel.setAttribute('role', 'dialog');
@@ -377,7 +378,7 @@ if (year) year.textContent = new Date().getFullYear();
   panel.setAttribute('aria-hidden', 'true');
 
   const head = el('div', 'grow-chat-head');
-  head.innerHTML = '<div class="grow-chat-avatar">G</div><div><strong>Grow Buddy <span>AI Assistant</span></strong><small><i></i> Online • usually replies instantly</small></div>';
+  head.innerHTML = '<div class="grow-chat-avatar">G</div><div><strong>Grow Assistant <span>AI Assistant</span></strong><small><i></i> Online • instant website guidance</small></div>';
   const close = el('button', 'grow-chat-close', '×');
   close.type = 'button';
   close.setAttribute('aria-label', 'Close assistant');
@@ -449,55 +450,65 @@ if (year) year.textContent = new Date().getFullYear();
     const parts = ['Hello Grow Advertising, I came from the website assistant.'];
     if (state.business) parts.push('Business: ' + state.business + '.');
     if (state.service) parts.push('Interested in: ' + state.service + '.');
-    parts.push('Please guide me with the next step.');
+    if (state.lastUserMessage) parts.push('My question: ' + state.lastUserMessage + '.');
+    parts.push('Please guide me with the right next step.');
     return parts.join(' ');
   }
 
   function answer(raw) {
     const text = normalize(raw);
+    state.lastUserMessage = raw.trim().slice(0, 220);
     const detected = serviceFromText(text);
     if (detected) state.service = detected;
 
-    if (hasAny(text, ['hi', 'hello', 'hey', 'hii', 'namaste'])) {
+    if (hasAny(text, ['hi', 'hello', 'hey', 'hii', 'namaste', 'good morning', 'good evening'])) {
       state.lastIntent = 'greeting';
       return {
-        text: 'Hey! 👋 I’m Grow Buddy. Tell me what you want to grow — leads, branding, social media, videos, website or visibility?',
-        quick: ['Get more leads', 'Social media', 'Branding', 'Website']
+        text: 'Hello 👋 Welcome to Grow Advertising. I can help you choose the right service, check packages, view relevant work, or connect you with our team. What would you like help with?',
+        quick: ['Get more leads', 'View services', 'Show pricing', 'See portfolio']
       };
     }
 
-    if (hasAny(text, ['price', 'pricing', 'cost', 'charges', 'package', 'packages', 'budget'])) {
+    if (hasAny(text, ['price', 'pricing', 'cost', 'charges', 'charge', 'package', 'packages', 'budget', 'kitna', 'rate'])) {
       state.lastIntent = 'pricing';
       return {
         html: true,
-        text: 'We have ready-made monthly packages plus custom plans based on your goals. <a href="services.html#packages">View packages →</a><br><br>If you tell me the service you need, I can point you to the right option.',
-        quick: ['Meta Ads', 'Social Media', 'Branding', 'Talk on WhatsApp']
+        text: 'Our pricing depends on the service scope and campaign requirements. You can review our current packages here: <a href="services.html#packages">View Packages →</a><br><br>If you tell me which service you need, I can guide you to the most relevant option.',
+        quick: ['Meta Ads', 'Social Media', 'Branding', 'WhatsApp consultation']
       };
     }
 
-    if (hasAny(text, ['portfolio', 'work', 'projects', 'samples', 'designs', 'show me'])) {
+    if (hasAny(text, ['portfolio', 'work', 'projects', 'samples', 'designs', 'show me', 'example', 'examples', 'kaam dikhao'])) {
       state.lastIntent = 'portfolio';
       return {
         html: true,
-        text: 'Absolutely 😎 You can explore our logo, social media, packaging, reels, video and ads work here: <a href="portfolio.html">View Portfolio →</a>',
+        text: 'Certainly. Our portfolio includes brand identity, social media creatives, packaging, reels, video work and advertising projects. <a href="portfolio.html">View Our Portfolio →</a>',
         quick: ['Logo work', 'Social posts', 'Packaging', 'Reels']
       };
     }
 
-    if (hasAny(text, ['contact', 'call', 'phone', 'whatsapp', 'talk', 'human', 'team'])) {
+    if (hasAny(text, ['contact', 'call', 'phone', 'whatsapp', 'talk', 'human', 'team se baat', 'person se baat', 'consultation'])) {
       state.lastIntent = 'contact';
       return {
         html: true,
-        text: 'Want a human? Easy. <a href="' + whatsappLink(handoffMessage()) + '" target="_blank" rel="noopener">Chat with our team on WhatsApp →</a><br><br>You can also call us at <a href="tel:+919921107234">+91 9921107234</a>.',
-        quick: ['Book consultation', 'View services']
+        text: 'Of course. You can speak directly with the Grow Advertising team on WhatsApp for personalised guidance. <a href="' + whatsappLink(handoffMessage()) + '" target="_blank" rel="noopener">Start WhatsApp Chat →</a><br><br>Call: <a href="tel:+919921107234">+91 9921107234</a>',
+        quick: ['View services', 'Show pricing']
       };
     }
 
-    if (hasAny(text, ['what do you do', 'services', 'service', 'help me', 'help'])) {
+    if (hasAny(text, ['what do you do', 'services', 'service', 'help me', 'help', 'kya karte', 'kya service'])) {
       state.lastIntent = 'services';
       return {
-        text: 'We help with Meta Ads & lead generation, social media management, graphic design, reels/video shoots, branding & packaging, websites, Google Business and SEO. Pick one and I’ll guide you.',
+        text: 'Grow Advertising provides Meta Ads & lead generation, social media management, graphic design, reels and video production, branding & packaging, website development, Google Business support and SEO. Select an area and I’ll guide you further.',
         quick: ['Meta Ads', 'Social Media', 'Video / Reels', 'Website']
+      };
+    }
+
+    if (hasAny(text, ['time', 'days', 'delivery', 'deliver', 'kitne din', 'turnaround'])) {
+      state.lastIntent = 'timeline';
+      return {
+        text: 'Delivery time depends on the service and scope. Design tasks can often move quickly, while branding, websites, shoots and campaign work require a defined timeline. For an exact commitment, I’ll connect you with the team on WhatsApp.',
+        quick: ['WhatsApp consultation', 'View services']
       };
     }
 
@@ -505,33 +516,34 @@ if (year) year.textContent = new Date().getFullYear();
       state.lastIntent = 'service';
       const current = state.service || detected;
       let detail = '';
-      if (current === 'Meta Ads & Lead Generation') detail = 'We plan targeting, creatives, campaign setup, testing and optimization to generate better enquiries and leads.';
-      if (current === 'Social Media Management') detail = 'We can handle content planning, creatives, posting support and account consistency for your brand.';
-      if (current === 'Graphic Designing') detail = 'We create social posts, ad creatives, promotional designs and marketing visuals aligned with your brand.';
-      if (current === 'Video / Reels & Shoot') detail = 'We work on reels, product/showroom shoots, edits, motion graphics, typography and AI-led video formats.';
-      if (current === 'Branding & Packaging') detail = 'We work on logos, brand identity systems and packaging that look distinctive and market-ready.';
-      if (current === 'Website Development') detail = 'We build responsive business websites and landing pages designed to explain your offer clearly and drive enquiries.';
-      if (current === 'Google Business & SEO') detail = 'We help improve local visibility through Google Business Profile support and search-focused website improvements.';
+      if (current === 'Meta Ads & Lead Generation') detail = 'For Meta Ads, we focus on campaign strategy, audience targeting, ad creatives, testing and ongoing optimisation to generate quality enquiries and leads.';
+      if (current === 'Social Media Management') detail = 'For social media management, we support content planning, creative production, posting and consistent brand communication across your pages.';
+      if (current === 'Graphic Designing') detail = 'Our graphic design service covers social media posts, ad creatives, promotional designs and branded marketing communication.';
+      if (current === 'Video / Reels & Shoot') detail = 'Our video service includes reels, product and showroom shoots, editing, motion graphics, typography and selected AI-assisted formats.';
+      if (current === 'Branding & Packaging') detail = 'Our branding service covers logos, visual identity systems and packaging designed to make your brand more distinctive and market-ready.';
+      if (current === 'Website Development') detail = 'We build responsive business websites and landing pages focused on clear communication, credibility and lead generation.';
+      if (current === 'Google Business & SEO') detail = 'We support local visibility through Google Business Profile optimisation and search-focused website improvements.';
       return {
-        text: detail + ' Want pricing, examples, or a quick WhatsApp consultation?',
+        text: detail + ' Would you like to see pricing, relevant work, or speak with our team?',
         quick: ['Show pricing', 'Show portfolio', 'WhatsApp consultation']
       };
     }
 
-    if (hasAny(text, ['restaurant', 'shop', 'store', 'clinic', 'salon', 'real estate', 'school', 'business', 'company', 'brand'])) {
+    if (hasAny(text, ['restaurant', 'shop', 'store', 'clinic', 'salon', 'real estate', 'school', 'business', 'company', 'brand', 'startup'])) {
       state.business = raw.trim().slice(0, 80);
       return {
-        text: 'Nice — that gives me context. What result matters most right now: more leads, stronger branding, better social media, or a new website?',
+        text: 'Thank you — that gives me useful context. What is your main priority right now: more leads, stronger branding, better social media, video content, or a new website?',
         quick: ['More leads', 'Better social media', 'Branding', 'Website']
       };
     }
 
+    state.lastIntent = 'handoff';
     return {
-      text: 'I can help with services, packages, portfolio, leads, branding, social media, videos, websites and contact details. Try asking something like “I need more leads” or “show pricing”.',
-      quick: ['I need more leads', 'Show pricing', 'View portfolio', 'Talk to team']
+      html: true,
+      redirect: true,
+      text: 'I’m not fully confident I understood your requirement. To avoid giving you the wrong information, I’m connecting you directly with the Grow Advertising team on WhatsApp for personalised assistance.'
     };
   }
-
   function handleMessage(message) {
     if (!message || !message.trim()) return;
     addMessage(message.trim(), 'user');
@@ -547,6 +559,13 @@ if (year) year.textContent = new Date().getFullYear();
       typing.remove();
       const response = answer(message);
       addMessage(response.text, 'bot', response.html);
+      if (response.redirect) {
+        setQuickReplies([]);
+        window.setTimeout(function () {
+          window.location.href = whatsappLink(handoffMessage());
+        }, 900);
+        return;
+      }
       setQuickReplies((response.quick || []).map(function (label) {
         if (label === 'Talk on WhatsApp' || label === 'WhatsApp consultation' || label === 'Talk to team' || label === 'Book consultation') {
           return {label: label, message: label};
@@ -579,6 +598,6 @@ if (year) year.textContent = new Date().getFullYear();
     if (e.key === 'Escape' && panel.classList.contains('open')) closeChat();
   });
 
-  addMessage('Hey! 👋 I’m Grow Buddy — your quick guide to Grow Advertising. What are you looking for today?', 'bot');
+  addMessage('Hello 👋 Welcome to Grow Advertising. I’m your website assistant for services, pricing, portfolio and quick support. How may I help you today?', 'bot');
   setQuickReplies(['Get more leads', 'View services', 'Show pricing', 'See portfolio']);
 })();
