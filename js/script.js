@@ -461,6 +461,31 @@ if (year) year.textContent = new Date().getFullYear();
     const detected = serviceFromText(text);
     if (detected) state.service = detected;
 
+    if (hasAny(text, ['robot run', 'run robot', 'run around', 'bhago robot', 'robot bhago'])) {
+      if (window.GrowRobot) window.GrowRobot.do('run');
+      return { text: 'Done 😄 Our little Grow Bot is running around the screen.', quick: ['Robot laugh', 'Robot play', 'Robot cry'] };
+    }
+
+    if (hasAny(text, ['robot laugh', 'laugh robot', 'robot haso', 'robot hanso', 'make robot laugh'])) {
+      if (window.GrowRobot) window.GrowRobot.do('laugh');
+      return { text: 'Haha 😄 Grow Bot is laughing now.', quick: ['Robot play', 'Robot run', 'Kick robot'] };
+    }
+
+    if (hasAny(text, ['robot cry', 'cry robot', 'robot ro', 'make robot cry'])) {
+      if (window.GrowRobot) window.GrowRobot.do('cry');
+      return { text: 'Aww 😢 Grow Bot is crying for a moment. He’ll be fine again in a few seconds.', quick: ['Robot laugh', 'Robot play', 'Robot run'] };
+    }
+
+    if (hasAny(text, ['robot play', 'play robot', 'make robot play', 'robot khelo'])) {
+      if (window.GrowRobot) window.GrowRobot.do('play');
+      return { text: 'Play mode on 🎮 Grow Bot is bouncing around.', quick: ['Robot run', 'Robot laugh', 'Kick robot'] };
+    }
+
+    if (hasAny(text, ['kick robot', 'robot kick', 'kick him', 'kick bot'])) {
+      if (window.GrowRobot) window.GrowRobot.do('kick');
+      return { text: 'Oops 😅 You kicked Grow Bot — he’ll cry for a second, then recover and go back to normal.', quick: ['Robot laugh', 'Robot play', 'Robot run'] };
+    }
+
     if (hasAny(text, ['hi', 'hello', 'hey', 'hii', 'namaste', 'good morning', 'good evening'])) {
       state.lastIntent = 'greeting';
       return {
@@ -601,4 +626,231 @@ if (year) year.textContent = new Date().getFullYear();
 
   addMessage('Hello 👋 Welcome to Grow Advertising. I’m your website assistant for services, pricing, portfolio and quick support. How may I help you today?', 'bot');
   setQuickReplies(['Get more leads', 'View services', 'Show pricing', 'See portfolio']);
+})();
+
+
+// Tiny floating Grow Bot mascot
+(function () {
+  if (document.querySelector('.grow-bot')) return;
+
+  const bot = document.createElement('div');
+  bot.className = 'grow-bot';
+  bot.setAttribute('role', 'group');
+  bot.setAttribute('aria-label', 'Interactive Grow Bot');
+
+  bot.innerHTML =
+    '<div class="grow-bot-speech" aria-live="polite">Hi! Tap me 👋</div>' +
+    '<button class="grow-bot-body" type="button" aria-label="Open Grow Bot controls">' +
+      '<span class="grow-bot-antenna"><i></i></span>' +
+      '<span class="grow-bot-head">' +
+        '<span class="grow-bot-eye left"></span>' +
+        '<span class="grow-bot-eye right"></span>' +
+        '<span class="grow-bot-mouth"></span>' +
+        '<span class="grow-bot-tear left"></span>' +
+        '<span class="grow-bot-tear right"></span>' +
+      '</span>' +
+      '<span class="grow-bot-torso"><b>G</b></span>' +
+      '<span class="grow-bot-arm left"></span>' +
+      '<span class="grow-bot-arm right"></span>' +
+      '<span class="grow-bot-leg left"></span>' +
+      '<span class="grow-bot-leg right"></span>' +
+    '</button>' +
+    '<div class="grow-bot-actions" aria-label="Grow Bot actions">' +
+      '<button type="button" data-bot-action="play">🎮 Play</button>' +
+      '<button type="button" data-bot-action="run">🏃 Run</button>' +
+      '<button type="button" data-bot-action="laugh">😄 Laugh</button>' +
+      '<button type="button" data-bot-action="cry">😢 Cry</button>' +
+      '<button type="button" data-bot-action="kick">🦶 Kick</button>' +
+    '</div>';
+
+  document.body.appendChild(bot);
+
+  const body = bot.querySelector('.grow-bot-body');
+  const speech = bot.querySelector('.grow-bot-speech');
+  const actions = bot.querySelector('.grow-bot-actions');
+  let stateTimer = null;
+  let runTimer = null;
+  let drag = null;
+  let moved = false;
+
+  function clearBotState() {
+    ['is-running','is-laughing','is-crying','is-playing','is-kicked'].forEach(function (name) {
+      bot.classList.remove(name);
+    });
+    window.clearTimeout(stateTimer);
+    window.clearInterval(runTimer);
+    stateTimer = null;
+    runTimer = null;
+  }
+
+  function say(message, ms) {
+    speech.textContent = message;
+    bot.classList.add('show-speech');
+    window.clearTimeout(speech._timer);
+    speech._timer = window.setTimeout(function () {
+      bot.classList.remove('show-speech');
+    }, ms || 2200);
+  }
+
+  function keepOnScreen(x, y) {
+    const maxX = Math.max(8, window.innerWidth - bot.offsetWidth - 8);
+    const maxY = Math.max(86, window.innerHeight - bot.offsetHeight - 8);
+    return {
+      x: Math.min(maxX, Math.max(8, x)),
+      y: Math.min(maxY, Math.max(86, y))
+    };
+  }
+
+  function moveTo(x, y, animate) {
+    const p = keepOnScreen(x, y);
+    bot.style.left = p.x + 'px';
+    bot.style.top = p.y + 'px';
+    bot.style.right = 'auto';
+    bot.style.bottom = 'auto';
+    bot.classList.toggle('bot-moving', !!animate);
+  }
+
+  function randomSpot() {
+    const x = 12 + Math.random() * Math.max(20, window.innerWidth - bot.offsetWidth - 24);
+    const y = 92 + Math.random() * Math.max(20, window.innerHeight - bot.offsetHeight - 110);
+    return keepOnScreen(x, y);
+  }
+
+  function doAction(action) {
+    clearBotState();
+    actions.classList.remove('open');
+
+    if (action === 'kick') {
+      bot.classList.add('is-kicked', 'is-crying');
+      say('Ouch! 😭 I’m okay…', 2300);
+      stateTimer = window.setTimeout(function () {
+        clearBotState();
+        say('All good again 😌', 1800);
+      }, 2400);
+      return;
+    }
+
+    if (action === 'cry') {
+      bot.classList.add('is-crying');
+      say('Why me? 😭', 2400);
+      stateTimer = window.setTimeout(function () {
+        clearBotState();
+        say('I feel better now 🙂', 1600);
+      }, 2800);
+      return;
+    }
+
+    if (action === 'laugh') {
+      bot.classList.add('is-laughing');
+      say('Hahaha! 😂', 2000);
+      stateTimer = window.setTimeout(function () {
+        clearBotState();
+        say('Back to work 😎', 1500);
+      }, 2200);
+      return;
+    }
+
+    if (action === 'play') {
+      bot.classList.add('is-playing');
+      say('Play time! 🎮✨', 2200);
+      let hops = 0;
+      runTimer = window.setInterval(function () {
+        const p = randomSpot();
+        moveTo(p.x, p.y, true);
+        hops += 1;
+        if (hops >= 5) {
+          clearBotState();
+          say('That was fun! 😄', 1700);
+        }
+      }, 650);
+      return;
+    }
+
+    if (action === 'run') {
+      bot.classList.add('is-running');
+      say('Catch me if you can! 🏃💨', 2200);
+      let steps = 0;
+      runTimer = window.setInterval(function () {
+        const p = randomSpot();
+        moveTo(p.x, p.y, true);
+        steps += 1;
+        if (steps >= 7) {
+          clearBotState();
+          say('Phew! I’m back 😅', 1700);
+        }
+      }, 520);
+      return;
+    }
+  }
+
+  window.GrowRobot = {
+    do: doAction,
+    say: say
+  };
+
+  body.addEventListener('click', function () {
+    if (moved) {
+      moved = false;
+      return;
+    }
+    actions.classList.toggle('open');
+    say(actions.classList.contains('open') ? 'Choose my task 🤖' : 'Ready when you are!', 1600);
+  });
+
+  actions.addEventListener('click', function (event) {
+    const btn = event.target.closest('[data-bot-action]');
+    if (!btn) return;
+    doAction(btn.dataset.botAction);
+  });
+
+  function dragStart(event) {
+    if (event.button !== undefined && event.button !== 0) return;
+    clearBotState();
+    moved = false;
+    const rect = bot.getBoundingClientRect();
+    const point = event.touches ? event.touches[0] : event;
+    drag = {
+      dx: point.clientX - rect.left,
+      dy: point.clientY - rect.top,
+      sx: point.clientX,
+      sy: point.clientY
+    };
+    bot.classList.add('is-dragging');
+    actions.classList.remove('open');
+  }
+
+  function dragMove(event) {
+    if (!drag) return;
+    const point = event.touches ? event.touches[0] : event;
+    if (Math.abs(point.clientX - drag.sx) > 5 || Math.abs(point.clientY - drag.sy) > 5) moved = true;
+    moveTo(point.clientX - drag.dx, point.clientY - drag.dy, false);
+    if (event.cancelable) event.preventDefault();
+  }
+
+  function dragEnd() {
+    if (!drag) return;
+    drag = null;
+    bot.classList.remove('is-dragging');
+    if (moved) say('Nice parking spot 😎', 1300);
+  }
+
+  body.addEventListener('mousedown', dragStart);
+  body.addEventListener('touchstart', dragStart, { passive: true });
+  window.addEventListener('mousemove', dragMove);
+  window.addEventListener('touchmove', dragMove, { passive: false });
+  window.addEventListener('mouseup', dragEnd);
+  window.addEventListener('touchend', dragEnd);
+
+  body.addEventListener('dblclick', function () {
+    doAction('kick');
+  });
+
+  window.addEventListener('resize', function () {
+    const rect = bot.getBoundingClientRect();
+    moveTo(rect.left, rect.top, false);
+  });
+
+  window.setTimeout(function () {
+    say('Hi! I’m Grow Bot 🤖 Drag me, tap me, or give me a task in chat.', 4200);
+  }, 1300);
 })();
