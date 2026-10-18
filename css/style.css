@@ -634,3 +634,215 @@ button, input, textarea, select { font: inherit; }
   .grow-chat-panel{right:6px;bottom:6px;width:calc(100vw - 12px);height:min(640px,calc(100dvh - 12px));border-radius:22px}
   .grow-chat-launch-copy small{display:none}
 }
+
+
+/* Tiny floating Grow Bot */
+.grow-bot{
+  position:fixed;
+  left:22px;
+  bottom:22px;
+  z-index:9996;
+  width:92px;
+  height:126px;
+  user-select:none;
+  touch-action:none;
+  filter:drop-shadow(0 16px 24px rgba(0,0,0,.36));
+}
+.grow-bot-body{
+  position:absolute;
+  left:13px;
+  bottom:0;
+  width:66px;
+  height:100px;
+  border:0;
+  padding:0;
+  background:transparent;
+  cursor:grab;
+  color:inherit;
+  animation:growBotFloat 2.8s ease-in-out infinite;
+}
+.grow-bot-body:active{cursor:grabbing}
+.grow-bot.is-dragging .grow-bot-body{animation:none}
+.grow-bot-head{
+  position:absolute;
+  left:8px;
+  top:8px;
+  width:50px;
+  height:42px;
+  border:2px solid rgba(255,255,255,.28);
+  border-radius:16px;
+  background:linear-gradient(155deg,#262638,#11111e);
+  box-shadow:inset 0 0 0 2px rgba(255,122,0,.08);
+}
+.grow-bot-antenna{
+  position:absolute;
+  left:31px;
+  top:0;
+  width:4px;
+  height:13px;
+  border-radius:99px;
+  background:#c9c9d4;
+}
+.grow-bot-antenna i{
+  position:absolute;
+  left:-3px;
+  top:-5px;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:var(--orange);
+  box-shadow:0 0 12px rgba(255,122,0,.7);
+}
+.grow-bot-eye{
+  position:absolute;
+  top:15px;
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:#fff;
+  box-shadow:0 0 8px rgba(255,255,255,.35);
+}
+.grow-bot-eye::after{
+  content:"";
+  position:absolute;
+  inset:2px;
+  border-radius:50%;
+  background:var(--orange);
+}
+.grow-bot-eye.left{left:10px}.grow-bot-eye.right{right:10px}
+.grow-bot-mouth{
+  position:absolute;
+  left:18px;
+  bottom:8px;
+  width:14px;
+  height:4px;
+  border-radius:99px;
+  background:#c9c9d4;
+  transition:.2s ease;
+}
+.grow-bot-torso{
+  position:absolute;
+  left:13px;
+  top:53px;
+  width:40px;
+  height:33px;
+  display:grid;
+  place-items:center;
+  border:2px solid rgba(255,255,255,.22);
+  border-radius:12px;
+  background:linear-gradient(150deg,#1e1e2e,#0c0c16);
+}
+.grow-bot-torso b{
+  width:22px;
+  height:22px;
+  display:grid;
+  place-items:center;
+  border-radius:8px;
+  background:linear-gradient(135deg,var(--orange),var(--orange-2));
+  color:#121212;
+  font-size:.78rem;
+  font-weight:900;
+}
+.grow-bot-arm,.grow-bot-leg{
+  position:absolute;
+  display:block;
+  background:#bdbdc9;
+  border-radius:99px;
+  transform-origin:top center;
+}
+.grow-bot-arm{top:57px;width:5px;height:26px}
+.grow-bot-arm.left{left:7px;transform:rotate(16deg)}
+.grow-bot-arm.right{right:7px;transform:rotate(-16deg)}
+.grow-bot-leg{top:84px;width:6px;height:18px}
+.grow-bot-leg.left{left:22px}.grow-bot-leg.right{right:22px}
+.grow-bot-tear{
+  position:absolute;
+  top:25px;
+  width:5px;
+  height:10px;
+  border-radius:60% 60% 70% 70%;
+  background:#57b9ff;
+  opacity:0;
+}
+.grow-bot-tear.left{left:11px}.grow-bot-tear.right{right:11px}
+
+.grow-bot-speech{
+  position:absolute;
+  left:68px;
+  bottom:88px;
+  width:max-content;
+  max-width:220px;
+  padding:8px 10px;
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:12px 12px 12px 4px;
+  background:#11111e;
+  color:#f1f1f6;
+  font-size:.72rem;
+  font-weight:800;
+  line-height:1.3;
+  box-shadow:0 12px 30px rgba(0,0,0,.35);
+  opacity:0;
+  transform:translateY(5px) scale(.96);
+  pointer-events:none;
+  transition:.18s ease;
+}
+.grow-bot.show-speech .grow-bot-speech{opacity:1;transform:none}
+
+.grow-bot-actions{
+  position:absolute;
+  left:84px;
+  bottom:2px;
+  display:grid;
+  grid-template-columns:repeat(2,max-content);
+  gap:6px;
+  padding:8px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:14px;
+  background:rgba(10,10,20,.96);
+  box-shadow:0 18px 45px rgba(0,0,0,.48);
+  opacity:0;
+  visibility:hidden;
+  transform:translateX(-6px) scale(.96);
+  transition:.18s ease;
+}
+.grow-bot-actions.open{opacity:1;visibility:visible;transform:none}
+.grow-bot-actions button{
+  border:1px solid rgba(255,122,0,.24);
+  border-radius:999px;
+  padding:7px 9px;
+  background:rgba(255,122,0,.06);
+  color:#f0f0f5;
+  font-size:.68rem;
+  font-weight:800;
+  cursor:pointer;
+}
+.grow-bot-actions button:hover{background:rgba(255,122,0,.14);border-color:rgba(255,122,0,.5)}
+
+.grow-bot.bot-moving{transition:left .48s cubic-bezier(.2,.85,.25,1),top .48s cubic-bezier(.2,.85,.25,1)}
+.grow-bot.is-running .grow-bot-body{animation:growBotRun .25s linear infinite}
+.grow-bot.is-running .grow-bot-leg.left{animation:growBotLeg .22s linear infinite}
+.grow-bot.is-running .grow-bot-leg.right{animation:growBotLeg .22s linear infinite reverse}
+.grow-bot.is-playing .grow-bot-body{animation:growBotPlay .55s ease-in-out infinite}
+.grow-bot.is-laughing .grow-bot-body{animation:growBotLaugh .24s ease-in-out infinite}
+.grow-bot.is-laughing .grow-bot-mouth{height:9px;border-radius:0 0 12px 12px;background:var(--orange)}
+.grow-bot.is-crying .grow-bot-tear{opacity:1;animation:growBotTear .7s linear infinite}
+.grow-bot.is-crying .grow-bot-mouth{height:7px;border-radius:12px 12px 0 0;background:#57b9ff}
+.grow-bot.is-kicked .grow-bot-body{animation:growBotKick .5s ease-out 1}
+
+@keyframes growBotFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes growBotRun{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-5px) rotate(3deg)}}
+@keyframes growBotLeg{0%,100%{transform:rotate(24deg)}50%{transform:rotate(-24deg)}}
+@keyframes growBotPlay{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-12px) rotate(6deg)}}
+@keyframes growBotLaugh{0%,100%{transform:translateX(-2px) rotate(-3deg)}50%{transform:translateX(2px) rotate(3deg)}}
+@keyframes growBotTear{0%{transform:translateY(0);opacity:.2}30%{opacity:1}100%{transform:translateY(10px);opacity:0}}
+@keyframes growBotKick{0%{transform:translateX(0) rotate(0)}45%{transform:translateX(24px) rotate(24deg)}100%{transform:translateX(-4px) rotate(-5deg)}}
+
+@media(max-width:650px){
+  .grow-bot{left:10px;bottom:10px;transform:scale(.88);transform-origin:bottom left}
+  .grow-bot-speech{left:56px;max-width:180px}
+  .grow-bot-actions{left:72px;grid-template-columns:max-content}
+}
+@media(prefers-reduced-motion:reduce){
+  .grow-bot-body,.grow-bot.is-running .grow-bot-body,.grow-bot.is-playing .grow-bot-body,.grow-bot.is-laughing .grow-bot-body,.grow-bot.is-kicked .grow-bot-body{animation:none!important}
+  .grow-bot.bot-moving{transition:none}
+}
