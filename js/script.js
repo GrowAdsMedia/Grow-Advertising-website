@@ -538,10 +538,11 @@ if (year) year.textContent = new Date().getFullYear();
     }
 
     state.lastIntent = 'handoff';
+    const handoffUrl = whatsappLink(handoffMessage());
     return {
       html: true,
       redirect: true,
-      text: 'I’m not fully confident I understood your requirement. To avoid giving you the wrong information, I’m connecting you directly with the Grow Advertising team on WhatsApp for personalised assistance.'
+      text: 'Sorry — I couldn’t clearly understand your request, and I don’t want to give you the wrong information.<br><br>I’m taking you to our Grow Advertising team on WhatsApp for personalised help. <strong>Your message will be included automatically</strong>, so you won’t need to type it again.<br><br><a href="' + handoffUrl + '">Continue on WhatsApp →</a>'
     };
   }
   function handleMessage(message) {
@@ -563,7 +564,7 @@ if (year) year.textContent = new Date().getFullYear();
         setQuickReplies([]);
         window.setTimeout(function () {
           window.location.href = whatsappLink(handoffMessage());
-        }, 900);
+        }, 1600);
         return;
       }
       setQuickReplies((response.quick || []).map(function (label) {
