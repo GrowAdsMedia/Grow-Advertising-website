@@ -567,8 +567,8 @@ button, input, textarea, select { font: inherit; }
 .team-copy .section-title{font-size:clamp(2rem,3.8vw,3.35rem)}
 .team-points{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
 .team-points span{padding:8px 11px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.035);font-size:.8rem;font-weight:800;color:#e7e7ef}
-.team-media{overflow:hidden;border-radius:22px;border:1px solid var(--line);background:#0b0b17;box-shadow:0 20px 55px rgba(0,0,0,.28);aspect-ratio:1225/933}
-.team-media img{width:137.15%;max-width:none;height:auto;display:block}
+.team-media{overflow:hidden;border-radius:22px;border:1px solid var(--line);background:#0b0b17;box-shadow:0 20px 55px rgba(0,0,0,.28)}
+.team-media img{width:100%;height:auto;display:block}
 @media(max-width:900px){.team-grid{grid-template-columns:1fr}}
 @media(max-width:650px){.team-grid{padding:18px}.team-points{gap:6px}.team-points span{font-size:.74rem}}
 
