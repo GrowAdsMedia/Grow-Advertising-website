@@ -461,6 +461,26 @@ if (year) year.textContent = new Date().getFullYear();
     const detected = serviceFromText(text);
     if (detected) state.service = detected;
 
+    if (hasAny(text, ['robot dance', 'dance robot', 'make robot dance', 'robot nacho', 'robot naacho'])) {
+      if (window.GrowRobot) window.GrowRobot.do('dance');
+      return { text: 'Dance mode on 💃🤖 Grow Bot is showing off a few moves, then he’ll return to normal.', quick: ['Robot spin', 'Robot greet', 'Service tip'] };
+    }
+
+    if (hasAny(text, ['robot spin', 'spin robot', 'make robot spin', 'robot ghoomo', 'robot ghumao'])) {
+      if (window.GrowRobot) window.GrowRobot.do('spin');
+      return { text: 'Spinning up 🌀 Grow Bot will do a quick spin and reset.', quick: ['Robot dance', 'Robot greet', 'Service tip'] };
+    }
+
+    if (hasAny(text, ['robot greet', 'greet visitor', 'greet me', 'say hello robot', 'robot hello', 'robot welcome'])) {
+      if (window.GrowRobot) window.GrowRobot.do('greet');
+      return { text: 'Greeting mode activated 👋 Grow Bot is welcoming the visitor.', quick: ['Robot dance', 'Robot spin', 'Service tip'] };
+    }
+
+    if (hasAny(text, ['service tip', 'robot tip', 'show service tip', 'marketing tip', 'give me a tip'])) {
+      if (window.GrowRobot) window.GrowRobot.do('tip');
+      return { text: 'Tip incoming 💡 Grow Bot is sharing a quick Grow Advertising service tip.', quick: ['Robot dance', 'Robot greet', 'Robot run'] };
+    }
+
     if (hasAny(text, ['robot run', 'run robot', 'run around', 'bhago robot', 'robot bhago'])) {
       if (window.GrowRobot) window.GrowRobot.do('run');
       return { text: 'Done 😄 Our little Grow Bot is running around the screen.', quick: ['Robot laugh', 'Robot play', 'Robot cry'] };
@@ -661,6 +681,10 @@ if (year) year.textContent = new Date().getFullYear();
       '<button type="button" data-bot-action="laugh">😄 Laugh</button>' +
       '<button type="button" data-bot-action="cry">😢 Cry</button>' +
       '<button type="button" data-bot-action="kick">🦶 Kick</button>' +
+      '<button type="button" data-bot-action="dance">💃 Dance</button>' +
+      '<button type="button" data-bot-action="spin">🌀 Spin</button>' +
+      '<button type="button" data-bot-action="greet">👋 Greet</button>' +
+      '<button type="button" data-bot-action="tip">💡 Tip</button>' +
     '</div>';
 
   document.body.appendChild(bot);
@@ -677,7 +701,7 @@ if (year) year.textContent = new Date().getFullYear();
   const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function clearBotState() {
-    ['is-running','is-laughing','is-crying','is-playing','is-kicked','is-waving','is-looking-left','is-looking-right','is-blinking','is-idle-mood'].forEach(function (name) {
+    ['is-running','is-laughing','is-crying','is-playing','is-kicked','is-dancing','is-spinning','is-greeting','is-tip','is-waving','is-looking-left','is-looking-right','is-blinking','is-idle-mood'].forEach(function (name) {
       bot.classList.remove(name);
     });
     window.clearTimeout(stateTimer);
@@ -699,7 +723,11 @@ if (year) year.textContent = new Date().getFullYear();
       bot.classList.contains('is-running') ||
       bot.classList.contains('is-playing') ||
       bot.classList.contains('is-kicked') ||
-      bot.classList.contains('is-crying');
+      bot.classList.contains('is-crying') ||
+      bot.classList.contains('is-dancing') ||
+      bot.classList.contains('is-spinning') ||
+      bot.classList.contains('is-greeting') ||
+      bot.classList.contains('is-tip');
   }
 
   function finishIdleMood() {
@@ -780,6 +808,57 @@ if (year) year.textContent = new Date().getFullYear();
     stopIdleCycle();
     clearBotState();
     actions.classList.remove('open');
+
+    if (action === 'dance') {
+      bot.classList.add('is-dancing');
+      say('Dance break! 💃🤖', 2200);
+      stateTimer = window.setTimeout(function () {
+        clearBotState();
+        say('Back to business 😎', 1500);
+        scheduleIdle();
+      }, 2600);
+      return;
+    }
+
+    if (action === 'spin') {
+      bot.classList.add('is-spinning');
+      say('Wheee! 🌀', 1700);
+      stateTimer = window.setTimeout(function () {
+        clearBotState();
+        say('Stable again 😄', 1400);
+        scheduleIdle();
+      }, 1900);
+      return;
+    }
+
+    if (action === 'greet') {
+      bot.classList.add('is-greeting', 'is-waving');
+      say('Welcome to Grow Advertising! 👋 How can we help your brand grow?', 3200);
+      stateTimer = window.setTimeout(function () {
+        clearBotState();
+        scheduleIdle();
+      }, 3400);
+      return;
+    }
+
+    if (action === 'tip') {
+      const tips = [
+        'Meta Ads tip: strong creative + clear offer usually improves lead quality.',
+        'Branding tip: keep your logo, colours and visual style consistent everywhere.',
+        'Social tip: short hooks and clear value help people stop scrolling.',
+        'Website tip: one clear CTA on every key section makes enquiries easier.',
+        'Local SEO tip: keep your Google Business profile complete and regularly updated.',
+        'Reels tip: show the product or result early instead of waiting for the end.'
+      ];
+      bot.classList.add('is-tip', 'is-waving');
+      say('💡 ' + tips[Math.floor(Math.random() * tips.length)], 4300);
+      stateTimer = window.setTimeout(function () {
+        clearBotState();
+        say('Tip delivered ✅', 1300);
+        scheduleIdle();
+      }, 4500);
+      return;
+    }
 
     if (action === 'kick') {
       bot.classList.add('is-kicked', 'is-crying');
