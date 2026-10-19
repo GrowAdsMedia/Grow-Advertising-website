@@ -877,3 +877,68 @@ button, input, textarea, select { font: inherit; }
   from{box-shadow:0 0 8px rgba(255,122,0,.45);transform:scale(.9)}
   to{box-shadow:0 0 18px rgba(255,122,0,.9);transform:scale(1.12)}
 }
+
+
+/* Grow Bot playful tasks */
+.grow-bot.is-dancing .grow-bot-body{
+  animation:growBotDance .42s ease-in-out infinite;
+}
+.grow-bot.is-dancing .grow-bot-arm.left{
+  animation:growBotDanceArmLeft .42s ease-in-out infinite alternate;
+}
+.grow-bot.is-dancing .grow-bot-arm.right{
+  animation:growBotDanceArmRight .42s ease-in-out infinite alternate;
+}
+.grow-bot.is-dancing .grow-bot-leg.left{
+  animation:growBotDanceLeg .42s ease-in-out infinite alternate;
+}
+.grow-bot.is-dancing .grow-bot-leg.right{
+  animation:growBotDanceLeg .42s ease-in-out infinite alternate-reverse;
+}
+.grow-bot.is-spinning .grow-bot-body{
+  animation:growBotSpin .62s cubic-bezier(.4,.05,.2,.95) infinite;
+}
+.grow-bot.is-greeting .grow-bot-mouth,
+.grow-bot.is-tip .grow-bot-mouth{
+  height:8px;
+  border-radius:0 0 12px 12px;
+  background:var(--orange);
+}
+.grow-bot.is-greeting .grow-bot-antenna i,
+.grow-bot.is-tip .grow-bot-antenna i{
+  animation:growBotPulse .45s ease-in-out infinite alternate;
+}
+.grow-bot.is-tip .grow-bot-torso{
+  box-shadow:0 0 0 2px rgba(255,122,0,.15),0 0 24px rgba(255,122,0,.22);
+}
+
+@keyframes growBotDance{
+  0%,100%{transform:translateY(0) rotate(-7deg)}
+  25%{transform:translateY(-7px) rotate(7deg)}
+  50%{transform:translateY(0) rotate(9deg)}
+  75%{transform:translateY(-7px) rotate(-7deg)}
+}
+@keyframes growBotDanceArmLeft{
+  from{transform:rotate(18deg)}
+  to{transform:rotate(72deg)}
+}
+@keyframes growBotDanceArmRight{
+  from{transform:rotate(-18deg)}
+  to{transform:rotate(-72deg)}
+}
+@keyframes growBotDanceLeg{
+  from{transform:rotate(-15deg)}
+  to{transform:rotate(18deg)}
+}
+@keyframes growBotSpin{
+  0%{transform:rotate(0deg) scale(1)}
+  50%{transform:rotate(180deg) scale(.9)}
+  100%{transform:rotate(360deg) scale(1)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .grow-bot.is-dancing .grow-bot-body,
+  .grow-bot.is-dancing .grow-bot-arm,
+  .grow-bot.is-dancing .grow-bot-leg,
+  .grow-bot.is-spinning .grow-bot-body{animation:none!important}
+}
