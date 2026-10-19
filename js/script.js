@@ -670,17 +670,77 @@ if (year) year.textContent = new Date().getFullYear();
   const actions = bot.querySelector('.grow-bot-actions');
   let stateTimer = null;
   let runTimer = null;
+  let idleTimer = null;
+  let idleMoodTimer = null;
   let drag = null;
   let moved = false;
+  const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function clearBotState() {
-    ['is-running','is-laughing','is-crying','is-playing','is-kicked'].forEach(function (name) {
+    ['is-running','is-laughing','is-crying','is-playing','is-kicked','is-waving','is-looking-left','is-looking-right','is-blinking','is-idle-mood'].forEach(function (name) {
       bot.classList.remove(name);
     });
     window.clearTimeout(stateTimer);
     window.clearInterval(runTimer);
     stateTimer = null;
     runTimer = null;
+  }
+
+  function stopIdleCycle() {
+    window.clearTimeout(idleTimer);
+    window.clearTimeout(idleMoodTimer);
+    idleTimer = null;
+    idleMoodTimer = null;
+  }
+
+  function isBusy() {
+    return !!drag ||
+      actions.classList.contains('open') ||
+      bot.classList.contains('is-running') ||
+      bot.classList.contains('is-playing') ||
+      bot.classList.contains('is-kicked') ||
+      bot.classList.contains('is-crying');
+  }
+
+  function finishIdleMood() {
+    ['is-waving','is-looking-left','is-looking-right','is-laughing','is-blinking','is-idle-mood'].forEach(function (name) {
+      bot.classList.remove(name);
+    });
+    scheduleIdle();
+  }
+
+  function playIdleMood() {
+    if (reducedMotion || document.hidden || isBusy()) {
+      scheduleIdle();
+      return;
+    }
+
+    const moods = ['wave','look-left','look-right','laugh','blink'];
+    const mood = moods[Math.floor(Math.random() * moods.length)];
+    bot.classList.add('is-idle-mood');
+
+    if (mood === 'wave') {
+      bot.classList.add('is-waving');
+      if (Math.random() > 0.55) say('Hey there 👋', 1300);
+    } else if (mood === 'look-left') {
+      bot.classList.add('is-looking-left');
+    } else if (mood === 'look-right') {
+      bot.classList.add('is-looking-right');
+    } else if (mood === 'laugh') {
+      bot.classList.add('is-laughing');
+      if (Math.random() > 0.6) say('Hehe 😄', 1200);
+    } else {
+      bot.classList.add('is-blinking');
+    }
+
+    idleMoodTimer = window.setTimeout(finishIdleMood, mood === 'laugh' ? 1500 : 1250);
+  }
+
+  function scheduleIdle() {
+    window.clearTimeout(idleTimer);
+    if (reducedMotion) return;
+    const wait = 6500 + Math.random() * 6500;
+    idleTimer = window.setTimeout(playIdleMood, wait);
   }
 
   function say(message, ms) {
@@ -717,6 +777,7 @@ if (year) year.textContent = new Date().getFullYear();
   }
 
   function doAction(action) {
+    stopIdleCycle();
     clearBotState();
     actions.classList.remove('open');
 
@@ -726,6 +787,7 @@ if (year) year.textContent = new Date().getFullYear();
       stateTimer = window.setTimeout(function () {
         clearBotState();
         say('All good again 😌', 1800);
+        scheduleIdle();
       }, 2400);
       return;
     }
@@ -736,6 +798,7 @@ if (year) year.textContent = new Date().getFullYear();
       stateTimer = window.setTimeout(function () {
         clearBotState();
         say('I feel better now 🙂', 1600);
+        scheduleIdle();
       }, 2800);
       return;
     }
@@ -746,6 +809,7 @@ if (year) year.textContent = new Date().getFullYear();
       stateTimer = window.setTimeout(function () {
         clearBotState();
         say('Back to work 😎', 1500);
+        scheduleIdle();
       }, 2200);
       return;
     }
@@ -761,6 +825,7 @@ if (year) year.textContent = new Date().getFullYear();
         if (hops >= 5) {
           clearBotState();
           say('That was fun! 😄', 1700);
+          scheduleIdle();
         }
       }, 650);
       return;
@@ -777,6 +842,7 @@ if (year) year.textContent = new Date().getFullYear();
         if (steps >= 7) {
           clearBotState();
           say('Phew! I’m back 😅', 1700);
+          scheduleIdle();
         }
       }, 520);
       return;
@@ -791,10 +857,14 @@ if (year) year.textContent = new Date().getFullYear();
   body.addEventListener('click', function () {
     if (moved) {
       moved = false;
+      scheduleIdle();
       return;
     }
+    stopIdleCycle();
+    clearBotState();
     actions.classList.toggle('open');
     say(actions.classList.contains('open') ? 'Choose my task 🤖' : 'Ready when you are!', 1600);
+    if (!actions.classList.contains('open')) scheduleIdle();
   });
 
   actions.addEventListener('click', function (event) {
@@ -805,6 +875,7 @@ if (year) year.textContent = new Date().getFullYear();
 
   function dragStart(event) {
     if (event.button !== undefined && event.button !== 0) return;
+    stopIdleCycle();
     clearBotState();
     moved = false;
     const rect = bot.getBoundingClientRect();
@@ -832,6 +903,7 @@ if (year) year.textContent = new Date().getFullYear();
     drag = null;
     bot.classList.remove('is-dragging');
     if (moved) say('Nice parking spot 😎', 1300);
+    scheduleIdle();
   }
 
   body.addEventListener('mousedown', dragStart);
@@ -850,7 +922,17 @@ if (year) year.textContent = new Date().getFullYear();
     moveTo(rect.left, rect.top, false);
   });
 
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      stopIdleCycle();
+      finishIdleMood();
+    } else {
+      scheduleIdle();
+    }
+  });
+
   window.setTimeout(function () {
     say('Hi! I’m Grow Bot 🤖 Drag me, tap me, or give me a task in chat.', 4200);
+    scheduleIdle();
   }, 1300);
 })();
