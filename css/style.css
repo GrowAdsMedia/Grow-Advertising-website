@@ -942,3 +942,18 @@ button, input, textarea, select { font: inherit; }
   .grow-bot.is-dancing .grow-bot-leg,
   .grow-bot.is-spinning .grow-bot-body{animation:none!important}
 }
+
+
+/* Performance: skip off-screen layout/paint work until sections approach the viewport */
+@supports (content-visibility: auto) {
+  .section,
+  .section-sm {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 720px;
+  }
+  .hero + .section-sm,
+  .page-hero + .section-sm {
+    content-visibility: visible;
+    contain-intrinsic-size: none;
+  }
+}
