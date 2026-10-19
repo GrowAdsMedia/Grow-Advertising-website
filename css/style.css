@@ -846,3 +846,34 @@ button, input, textarea, select { font: inherit; }
   .grow-bot-body,.grow-bot.is-running .grow-bot-body,.grow-bot.is-playing .grow-bot-body,.grow-bot.is-laughing .grow-bot-body,.grow-bot.is-kicked .grow-bot-body{animation:none!important}
   .grow-bot.bot-moving{transition:none}
 }
+
+
+/* Grow Bot idle moods */
+.grow-bot.is-waving .grow-bot-arm.right{
+  animation:growBotWave .34s ease-in-out 4;
+  transform-origin:top center;
+}
+.grow-bot.is-looking-left .grow-bot-eye::after{transform:translateX(-2px)}
+.grow-bot.is-looking-right .grow-bot-eye::after{transform:translateX(2px)}
+.grow-bot.is-looking-left .grow-bot-head{transform:rotate(-5deg)}
+.grow-bot.is-looking-right .grow-bot-head{transform:rotate(5deg)}
+.grow-bot.is-blinking .grow-bot-eye{
+  animation:growBotBlink .18s ease-in-out 3;
+}
+.grow-bot.is-idle-mood .grow-bot-antenna i{
+  animation:growBotPulse .7s ease-in-out infinite alternate;
+}
+.grow-bot-eye::after,.grow-bot-head{transition:transform .2s ease}
+
+@keyframes growBotWave{
+  0%,100%{transform:rotate(-16deg)}
+  50%{transform:rotate(-68deg)}
+}
+@keyframes growBotBlink{
+  0%,100%{transform:scaleY(1)}
+  50%{transform:scaleY(.12)}
+}
+@keyframes growBotPulse{
+  from{box-shadow:0 0 8px rgba(255,122,0,.45);transform:scale(.9)}
+  to{box-shadow:0 0 18px rgba(255,122,0,.9);transform:scale(1.12)}
+}
